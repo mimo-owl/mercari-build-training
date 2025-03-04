@@ -10,8 +10,9 @@ import (
 var errImageNotFound = errors.New("image not found")
 
 type Item struct {
-	ID   int    `db:"id" json:"-"`
-	Name string `db:"name" json:"name"`
+	ID       int    `db:"id" json:"-"`
+	Name     string `db:"name" json:"name"`
+	Category string `db:"category" json:"category"`
 }
 
 // Please run `go generate ./...` to generate the mock implementation
@@ -20,12 +21,14 @@ type Item struct {
 //go:generate go run go.uber.org/mock/mockgen -source=$GOFILE -package=${GOPACKAGE} -destination=./mock_$GOFILE
 type ItemRepository interface {
 	Insert(ctx context.Context, item *Item) error
+	GetAll(ctx context.Context) ([]Item, error)
 }
 
 // itemRepository is an implementation of ItemRepository
 type itemRepository struct {
 	// fileName is the path to the JSON file storing items.
 	fileName string
+	items    []Item
 }
 
 // NewItemRepository creates a new itemRepository.
@@ -33,10 +36,15 @@ func NewItemRepository() ItemRepository {
 	return &itemRepository{fileName: "items.json"}
 }
 
+// GetAll retrieves all items from the repository.
+func (i *itemRepository) GetAll(ctx context.Context) ([]Item, error) {
+	return i.items, nil
+}
+
 // Insert inserts an item into the repository.
 func (i *itemRepository) Insert(ctx context.Context, item *Item) error {
 	// STEP 4-1: add an implementation to store an item
-
+	i.items = append(i.items, *item)
 	return nil
 }
 
