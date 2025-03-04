@@ -1,2 +1,3 @@
 .venv/
+.mercari_env/
 __pycache__/
