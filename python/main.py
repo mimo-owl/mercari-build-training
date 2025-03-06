@@ -14,32 +14,38 @@ from fastapi.middleware.cors import CORSMiddleware
 import sqlite3
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
+import json
 
 
 # Define the path to the images & sqlite3 database
 images = pathlib.Path(__file__).parent.resolve() / "images"
-db = pathlib.Path(__file__).parent.resolve() / "db" / "mercari.sqlite3"
-items = pathlib.Path(__file__).parent.resolve() / "data/items.json"
+# db = pathlib.Path(__file__).parent.resolve() / "db" / "mercari.sqlite3"
+items_file = pathlib.Path(__file__).parent.resolve() / "data/items.json"
 
 
 def get_items():
-    if not items.exists():
-        items.parent.mkdir(parents=True, exist_ok=True)
-        items.write_text("[]")
+    if not items_file.exists():
+        items_file.parent.mkdir(parents=True, exist_ok=True)
+        save_items({"items": []})
 
-    return items
+    with items_file.open("r") as f:
+        return json.load(f)
+
+def save_items(items):
+    with items_file.open("w") as f:
+        json.dump(items, f, indent=2)
 
 
-def get_db():
-    if not db.exists():
-        yield
+# def get_db():
+#     if not db.exists():
+#         yield
 
-    conn = sqlite3.connect(db)
-    conn.row_factory = sqlite3.Row  # Return rows as dictionaries
-    try:
-        yield conn
-    finally:
-        conn.close()
+#     conn = sqlite3.connect(db)
+#     conn.row_factory = sqlite3.Row  # Return rows as dictionaries
+#     try:
+#         yield conn
+#     finally:
+#         conn.close()
 
 
 
@@ -78,21 +84,31 @@ class HelloResponse(BaseModel):
 def hello():
     return HelloResponse(**{"message": "Hello, world!"})
 
+class AddItemRequest(BaseModel):
+    name: str
+    category: str
 
 class AddItemResponse(BaseModel):
     message: str
+
+class Item(BaseModel):
+    name: str
+    category: str
 
 
 # add_item is a handler to add a new item for POST /items .
 @app.post("/items", response_model=AddItemResponse)
 def add_item(
     name: str = Form(...),
-    db: sqlite3.Connection = Depends(get_db),
+    category: str = Form(...),
+    # db: sqlite3.Connection = Depends(get_db),
 ):
     if not name:
         raise HTTPException(status_code=400, detail="name is required")
+    if not category:
+        raise HTTPException(status_code=400, detail="category is required")
 
-    insert_item(Item(name=name))
+    insert_item(Item(name=name, category=category))
     return AddItemResponse(**{"message": f"item received: {name}"})
 
 
@@ -102,7 +118,7 @@ async def get_image(image_name):
     # Create image path
     image = images / image_name
 
-    if not image_name.endswith(".jpg"):
+    if not image_name.lower().endswith(".jpg"):
         raise HTTPException(status_code=400, detail="Image path does not end with .jpg")
 
     if not image.exists():
@@ -114,8 +130,14 @@ async def get_image(image_name):
 
 class Item(BaseModel):
     name: str
+    category: str
 
 
 def insert_item(item: Item):
     # STEP 4-2: add an implementation to store an item
-    pass
+    items_data = get_items()
+    if "items" not in items_data:
+        items_data["items"] = []
+
+    items_data["items"].append(item.model_dump())
+    save_items(items_data)
