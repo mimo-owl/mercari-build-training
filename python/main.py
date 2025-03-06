@@ -1,3 +1,10 @@
+'''main program'''
+
+'''
+Run: uvicorn main:app --reload --port 9000
+Check: http://127.0.0.1:9000 in your browser
+'''
+
 import os
 import logging
 import pathlib
@@ -12,6 +19,15 @@ from contextlib import asynccontextmanager
 # Define the path to the images & sqlite3 database
 images = pathlib.Path(__file__).parent.resolve() / "images"
 db = pathlib.Path(__file__).parent.resolve() / "db" / "mercari.sqlite3"
+items = pathlib.Path(__file__).parent.resolve() / "data/items.json"
+
+
+def get_items():
+    if not items.exists():
+        items.parent.mkdir(parents=True, exist_ok=True)
+        items.write_text("[]")
+
+    return items
 
 
 def get_db():
@@ -24,6 +40,8 @@ def get_db():
         yield conn
     finally:
         conn.close()
+
+
 
 
 # STEP 5-1: set up the database connection
