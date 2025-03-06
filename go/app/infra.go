@@ -43,8 +43,13 @@ func (i *itemRepository) GetAll(ctx context.Context) ([]Item, error) {
 
 // Insert inserts an item into the repository.
 func (i *itemRepository) Insert(ctx context.Context, item *Item) error {
+<<<<<<< HEAD
 	// STEP 4-1: add an implementation to store an item
 	i.items = append(i.items, *item)
+=======
+	// STEP 4-2: add an implementation to store an item
+
+>>>>>>> eeac2f289ec8c3a543a6b765f79d10073c2f534f
 	return nil
 }
 

@@ -1,6 +1,10 @@
 # Build@Mercari Training Program 
 
+<<<<<<< HEAD
 This is mimo-owl's build training repository.
+=======
+This is @your_github_id's build training repository.
+>>>>>>> eeac2f289ec8c3a543a6b765f79d10073c2f534f
 
 Build trainingの前半では個人で課題に取り組んでもらい、Web開発の基礎知識をつけていただきます。
 ドキュメントには詳細なやり方は記載しません。自身で検索したり、リファレンスを確認したり、チームメイトと協力して各課題をクリアしましょう。
