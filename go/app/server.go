@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
@@ -66,12 +67,35 @@ type HelloResponse struct {
 	Message string `json:"message"`
 }
 
+type ItemsResponse struct {
+	Items []Item `json:"items"`
+}
+
 // Hello is a handler to return a Hello, world! message for GET / .
 func (s *Handlers) Hello(w http.ResponseWriter, r *http.Request) {
-	resp := HelloResponse{Message: "Hello, world!"}
-	err := json.NewEncoder(w).Encode(resp)
+	/*
+		resp := HelloResponse{Message: "Hello, world!"}
+		err := json.NewEncoder(w).Encode(resp)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	*/
+	ctx := r.Context()
+
+	// Retrieve all items from the repository
+	items, err := s.itemRepo.GetAll(ctx)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to get items", http.StatusInternalServerError)
+		return
+	}
+
+	// Construct and send the JSON response
+	resp := ItemsResponse{Items: items}
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 		return
 	}
 }
@@ -79,7 +103,8 @@ func (s *Handlers) Hello(w http.ResponseWriter, r *http.Request) {
 type AddItemRequest struct {
 	Name string `form:"name"`
 	// Category string `form:"category"` // STEP 4-2: add a category field
-	Image []byte `form:"image"` // STEP 4-4: add an image field
+	Category string `form:"category"`
+	Image    []byte `form:"image"` // STEP 4-4: add an image field
 }
 
 type AddItemResponse struct {
@@ -91,9 +116,21 @@ func parseAddItemRequest(r *http.Request) (*AddItemRequest, error) {
 	req := &AddItemRequest{
 		Name: r.FormValue("name"),
 		// STEP 4-2: add a category field
+		Category: r.FormValue("category"),
 	}
 
 	// STEP 4-4: add an image field
+	imageFile, _, err := r.FormFile("image")
+	if err != nil {
+		return nil, errors.New("image is required")
+	}
+	defer imageFile.Close()
+
+	imageData, err := io.ReadAll(imageFile)
+	if err != nil {
+		return nil, errors.New("failed to read image data")
+	}
+	req.Image = imageData
 
 	// validate the request
 	if req.Name == "" {
@@ -101,7 +138,15 @@ func parseAddItemRequest(r *http.Request) (*AddItemRequest, error) {
 	}
 
 	// STEP 4-2: validate the category field
+	if req.Category == "" {
+		return nil, errors.New("category is required")
+	}
+
 	// STEP 4-4: validate the image field
+	if len(req.Image) == 0 {
+		return nil, errors.New("image is required")
+	}
+
 	return req, nil
 }
 
@@ -126,6 +171,7 @@ func (s *Handlers) AddItem(w http.ResponseWriter, r *http.Request) {
 	item := &Item{
 		Name: req.Name,
 		// STEP 4-2: add a category field
+		Category: req.Category,
 		// STEP 4-4: add an image field
 	}
 	message := fmt.Sprintf("item received: %s", item.Name)
