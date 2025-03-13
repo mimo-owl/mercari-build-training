@@ -2,3 +2,4 @@
 __pycache__/
 /data/items.json
 /images/*.jpg
+.DS_Store
