@@ -75,8 +75,12 @@ def get_items_from_database_by_id(id: int, db: sqlite3.Connection) -> Dict[str, 
 
 
 def get_db():
+    # db.parent.mkdir(parents=True, exist_ok=True)  # dbフォルダを作成
     if not db.exists():
-        yield
+        setup_database()
+
+    # if not db.exists():
+    #     yield
 
     conn = sqlite3.connect(db, check_same_thread=False)
     conn.row_factory = sqlite3.Row  # Return rows as dictionaries
@@ -197,25 +201,27 @@ def get_item(item_id: int, db: sqlite3.Connection = Depends(get_db)):
 
 # add_item is a handler to add a new item for POST /items .
 @app.post("/items", response_model=AddItemResponse)
-async def add_item(
+def add_item(
     name: str = Form(...),
     category: str = Form(...),
-    image: UploadFile = File(...),
+    image: UploadFile = File(None), # image is optional
     db: sqlite3.Connection = Depends(get_db),
 ):
     if not name:
         raise HTTPException(status_code=400, detail="name is required")
     if not category:
         raise HTTPException(status_code=400, detail="category is required")
-    if not image:
-        raise HTTPException(status_code=400, detail="image is required")
+    # if not image:
+    #     raise HTTPException(status_code=200, detail="image was not uploaded")
 
-    image_bytes = await image.read()
-    hash_value = hashlib.sha256(image_bytes).hexdigest()
-    image_filename = f"{hash_value}.jpg"
-    image_path = images_dir / image_filename
-    with image_path.open("wb") as f:
-        f.write(image_bytes)
+    image_filename = "default.jpg"
+    if image:
+        image_bytes = image.file.read()
+        hash_value = hashlib.sha256(image_bytes).hexdigest()
+        image_filename = f"{hash_value}.jpg"
+        image_path = images_dir / image_filename
+        with image_path.open("wb") as f:
+            f.write(image_bytes)
 
     # Query the category table
     cursor = db.cursor()

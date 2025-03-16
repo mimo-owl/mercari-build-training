@@ -1,3 +1,7 @@
+'''
+Test code for main.py
+'''
+
 from fastapi.testclient import TestClient
 from main import app, get_db
 import pytest
@@ -8,7 +12,20 @@ import pathlib
 # STEP 6-4: uncomment this test setup
 test_db = pathlib.Path(__file__).parent.resolve() / "db" / "test_mercari.sqlite3"
 
+def setup_test_database():
+    conn = sqlite3.connect(test_db)
+    cursor = conn.cursor()
+    sql_file = pathlib.Path(__file__).parent.resolve() / "db" / "items.sql"
+    with open(sql_file, "r") as f:
+        cursor.executescript(f.read())
+    conn.commit()
+    cursor.close()
+    conn.close()
+
 def override_get_db():
+    if not test_db.exists():
+        setup_test_database()
+
     conn = sqlite3.connect(test_db)
     conn.row_factory = sqlite3.Row
     try:
@@ -21,16 +38,18 @@ app.dependency_overrides[get_db] = override_get_db
 @pytest.fixture(autouse=True)
 def db_connection():
     # Before the test is done, create a test database
+    setup_test_database()
     conn = sqlite3.connect(test_db)
-    cursor = conn.cursor()
-    cursor.execute(
-        """CREATE TABLE IF NOT EXISTS items (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		name VARCHAR(255),
-		category VARCHAR(255)
-	)"""
-    )
-    conn.commit()
+    # cursor = conn.cursor()
+
+    # cursor.execute(
+    #     """CREATE TABLE IF NOT EXISTS items (
+	# 	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	# 	name VARCHAR(255),
+	# 	category VARCHAR(255)
+	# )"""
+    # )
+    # conn.commit()
     conn.row_factory = sqlite3.Row  # Return rows as dictionaries
 
     yield conn
@@ -50,7 +69,7 @@ client = TestClient(app)
     ],
 )
 def test_hello(want_status_code, want_body):
-    response_body = client.get("/").json()
+    response_body = client.get("/")
     # STEP 6-2: confirm the status code
     assert response_body.status_code == want_status_code, f"Expected status code {want_status_code}, got {response_body.status_code}"
     # STEP 6-2: confirm response body
