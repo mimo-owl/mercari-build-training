@@ -197,7 +197,7 @@ def get_item(item_id: int, db: sqlite3.Connection = Depends(get_db)):
     if not items_data["items"]:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    return items_data["items"][int(item_id) - 1]
+    return items_data["items"][0]
 
 # add_item is a handler to add a new item for POST /items .
 @app.post("/items", response_model=AddItemResponse)
