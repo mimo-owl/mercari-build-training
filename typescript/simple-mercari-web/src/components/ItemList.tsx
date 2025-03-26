@@ -30,25 +30,30 @@ export const ItemList = ({ reload, onLoadCompleted }: Prop) => {
   }, [reload, onLoadCompleted]);
 
   return (
-    <div>
-      {items?.map((item) => {
-        return (
-          <div key={item.id} className="ItemList">
+    <div className="ItemList">
+      <div className="item-grid">
+      {items?.map((item) => (
+        // return (
+          <div key={item.id}>
             {/* TODO: Task 2: Show item images */}
-            <img
+            <div className="image-container">
+              <img src={getImageUrl(item.image_name)} alt={item.name} onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}/>
+            </div>
+            {/* <img
               // src={PLACEHOLDER_IMAGE}
               src={getImageUrl(item.image_name)}
               alt={item.name}
               onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMAGE)}
-            />
+            /> */}
             <p>
               <span>Name: {item.name}</span>
               <br />
               <span>Category: {item.category}</span>
             </p>
           </div>
-        );
-      })}
+        // );
+      ))}
+      </div>
     </div>
   );
 };

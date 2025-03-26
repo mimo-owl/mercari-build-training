@@ -6,15 +6,15 @@ interface Prop {
 }
 
 type FormDataType = {
-  name: string;
-  category: string;
+  'item-name': string;
+  'item-category': string;
   image: string | File;
 };
 
 export const Listing = ({ onListingCompleted }: Prop) => {
   const initialState = {
-    name: '',
-    category: '',
+    'item-name': '',
+    'item-category': '',
     image: '',
   };
   const [values, setValues] = useState<FormDataType>(initialState);
@@ -49,8 +49,8 @@ export const Listing = ({ onListingCompleted }: Prop) => {
 
     // Submit the form
     postItem({
-      name: values.name,
-      category: values.category,
+      name: values['item-name'],
+      category: values['item-category'],
       image: values.image,
     })
       .then(() => {
@@ -74,20 +74,22 @@ export const Listing = ({ onListingCompleted }: Prop) => {
         <div>
           <input
             type="text"
-            name="name"
+            name="item-name"
             id="name"
             placeholder="name"
+            autoComplete='on'
             onChange={onValueChange}
             required
-            value={values.name}
+            value={values['item-name']}
           />
           <input
             type="text"
-            name="category"
+            name="item-category"
             id="category"
             placeholder="category"
+            autoComplete="on"
             onChange={onValueChange}
-            value={values.category}
+            value={values['item-category']}
           />
           <input
             type="file"
