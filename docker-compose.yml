@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ./python
+    ports:
+      - "9000:9000"
+    environment:
+      - FRONT_URL=http://localhost:3000
+    networks:
+      - simple-mercari-net
+
+  web:
+    build:
+      context: ./typescript/simple-mercari-web
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:9000
+    networks:
+      - simple-mercari-net
+    depends_on:
+      - api
+
+networks:
+  simple-mercari-net: # a network name to communicated between services
