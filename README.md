@@ -2,6 +2,62 @@
 
 This is mimo-owl's build training repository.
 
+## How to launch Simple Mercari on your PC
+
+### Start Docker
+Get a docker image by executing:
+```bash
+docker pull ghcr.io/mimo-owl/mercari-build-training:step8
+```
+Then, run docker by executing:
+```bash
+docker run -d -p 9000:9000 ghcr.io/mimo-owl/mercari-build-training:step8
+```
+You will be at
+```bash
+/app #
+```
+You are now in the docker  container!
+In the different window, execute `docker ps`.
+You should see a docker image named as `ghcr.io/mimo-owl/mercari-build-training:step8`. Confirm that you see CONTAINER ID.
+Notes:
+When temporarily exiting the docker, execute `docker stop <CONTAINER ID>`.
+When restarting the docker, execute `docker ps -a` to confirm you have the docker image.
+Then restart your docker by executing: `docker start <CONTAINER ID>`.
+To enter the docker container, execute: `docker exec -it <CONTAINER ID> sh`.
+You are now in the docker again!
+
+### Launch App
+Install node. Then check your node version by execution `node -v`.
+If the version is higher than v22, skip the next step. If not, ensure you get >v22 with the following:
+1. Check PATH
+Check where you installed node by executing `which -a node`. Example output is:
+```bash
+/usr/local/bin/node
+```
+Then, execute:
+```bash
+echo $PATH
+```
+Now, you will see `/usr/local/bin/node` is not in there. You have to add the PATH by executing:
+```bash
+export PATH="/usr/local/bin:$PATH"
+```
+Now, execute `node -v`. You will successfully see `v22.14.0` (or a higher version). You are all set!
+
+2. Launch the App
+Move to directory `typescript/simple-mercari-web` by executing `cd typescript/simple-mercari-web`.
+Install necessary library by executing `npm ci`.
+Then, launch the app with the following command:
+```bash
+npm start
+```
+Visit `http://localhost:3000/` from your browser.
+You should now see the Simple Mercari!
+
+
+
+
 Build trainingの前半では個人で課題に取り組んでもらい、Web開発の基礎知識をつけていただきます。
 ドキュメントには詳細なやり方は記載しません。自身で検索したり、リファレンスを確認したり、チームメイトと協力して各課題をクリアしましょう。
 
