@@ -55,6 +55,20 @@ npm start
 Visit `http://localhost:3000/` from your browser.
 You should now see the Simple Mercari!
 
+--
+### Additional Notes
+To run API and the frontend with Docker compose, go to `/mercari-build-training` and execute:
+```bash
+mercari-build-training % docker-compose up --build
+```
+To stop compose, run:
+```bash
+docker-compose stop
+```
+To remove the compose, run:
+```bash
+docker-compose down --volumes
+```
 
 
 
@@ -90,9 +104,9 @@ The following icons indicate pointers for
 - [x] **STEP7** Docker ([JA](document/07-docker.ja.md)/[EN](document/07-docker.en.md))
 - [x] **STEP8** Continuous Integration(CI) ([JA](document/08-ci.ja.md)
   /[EN](document/08-ci.en.md))
-- [ ] **STEP9** (Stretch) Frontend ([JA](document/09-frontend.ja.md)
+- [x] **STEP9** (Stretch) Frontend ([JA](document/09-frontend.ja.md)
   /[EN](document/09-frontend.en.md))
-- [ ] **STEP10** (Stretch)  Run multi service ([JA](document/10-docker-compose.ja.md)
+- [x] **STEP10** (Stretch)  Run multi service ([JA](document/10-docker-compose.ja.md)
   /[EN](document/10-docker-compose.en.md))
 - [ ] **EXTRA1** (Stretch)  Data Analysis ([Link](document/extra-01-data-analysis.md))
 
